@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Ürün Talep Formu - Kiperin Araçlar</title>
+    <meta name="description" content="Kiperin Türkiye için geliştirilmiş online ürün talep formudur.">
+    <meta name="author" content="M.E.K">
+    <link rel="icon" href="icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Flatpickr for better date picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'black-purple': {
+                            50: '#f6f5f9',
+                            100: '#edebf3',
+                            200: '#dbd6e8',
+                            300: '#c2b8d6',
+                            400: '#a594c0',
+                            500: '#8c74ab',
+                            600: '#775c95',
+                            700: '#644b7a',
+                            800: '#503c62',
+                            900: '#2d2136',
+                            950: '#1a1220',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Hide default number input spinners */
+        input.no-spinners::-webkit-outer-spin-button,
+        input.no-spinners::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input.no-spinners[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Summary section styles */
+        .summary-section {
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+
+        .summary-section-representative {
+            background-color: rgba(140, 116, 171, 0.05);
+            border-left: 4px solid #8c74ab;
+        }
+
+        .summary-section-person1 {
+            background-color: rgba(140, 116, 171, 0.1);
+            border-left: 4px solid #a594c0;
+        }
+
+        .summary-section-person2 {
+            background-color: rgba(140, 116, 171, 0.15);
+            border-left: 4px solid #c2b8d6;
+        }
+
+        .summary-section-date {
+            background-color: rgba(140, 116, 171, 0.05);
+            border-left: 4px solid #8c74ab;
+        }
+
+        @media (max-width: 480px) {
+            #printBtn {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+        }
+        .material-icons-outlined{
+            user-select: none;
+        }
+    </style>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                width: 210mm;
+                height: 297mm;
+                padding: 20mm;
+                margin: 0;
+            }
+
+            .print-content {
+                width: 100% !important;
+                height: 100% !important;
+                transform: scale(1);
+            }
+
+            .print-content table {
+                page-break-inside: avoid;
+            }
+
+            .print-content img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-black-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Form Section -->
+            <div class="w-full md:w-1/2">
+                <form id="productRequestForm" class="space-y-6">
+                    <!-- Firma Temsilcisi Bilgileri Bölümü -->
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-medium text-black-purple-700 flex items-center gap-2">
+                            <span class="material-icons-outlined">business</span>
+                            Firma Temsilcisi Bilgileri
+                        </h2>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-black-purple-600 mb-1">Ad</label>
+                                <input type="text" name="repFirstName" id="repFirstName"
+                                    class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-black-purple-600 mb-1">Soyad</label>
+                                <input type="text" name="repLastName" id="repLastName"
+                                    class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-black-purple-600 mb-1">Ünvan</label>
+                                <input type="text" name="repTitle" id="repTitle"
+                                    class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-black-purple-600 mb-1">Departman</label>
+                                <input type="text" name="repDepartment" id="repDepartment"
+                                    class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-black-purple-600 mb-1">Tarih</label>
+                                <input type="text" name="repDate" id="repDate"
+                                    class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none flatpickr-date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- İşbirliği Yapılacak Kişi Bilgileri Bölümü - 1. Kişi -->
+                    <div class="space-y-4 border border-black-purple-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center cursor-pointer"
+                            onclick="toggleBlock('person1Block')">
+                            <h2 class="text-xl font-medium text-black-purple-700 flex items-center gap-2">
+                                <span class="material-icons-outlined">person</span>
+                                1. İşbirliği Yapılacak Kişi Bilgileri
+                            </h2>
+                            <span class="material-icons-outlined transform transition-transform duration-200"
+                                id="person1Arrow">expand_more</span>
+                        </div>
+                        <div id="person1Block" class="space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Ad</label>
+                                    <input type="text" name="firstName1" id="firstName1"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Soyad</label>
+                                    <input type="text" name="lastName1" id="lastName1"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">E-mail</label>
+                                    <input type="email" name="email1"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="ornek@mail.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Telefon</label>
+                                    <input type="tel" name="phone1"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="0555 123 4567">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Adres</label>
+                                    <textarea name="address1" id="address1" rows="2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 1. Kişi için Ürünler Listesi -->
+                            <div class="space-y-4 mt-4">
+                                <h3 class="text-lg font-medium text-black-purple-700">1. Kişi Ürünleri</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-black-purple-50">
+                                                <th
+                                                    class="py-2 px-4 text-left text-sm font-medium text-black-purple-700 border-b border-black-purple-200">
+                                                    Ürün Adı</th>
+                                                <th
+                                                    class="py-2 px-4 text-center text-sm font-medium text-black-purple-700 border-b border-black-purple-200 w-32">
+                                                    Adet</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Collagen Classic</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_1_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_1_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_1_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Purple Collagen</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_2_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_2_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_2_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">5x Çoklu Magnezyum</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_3_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_3_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_3_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Bromelain</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_4_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_4_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_4_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Cranberry</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_5_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_5_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_5_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Multivitamin</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_6_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_6_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_6_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Mind Focus</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_7_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_7_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_7_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Postbiyotik</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_8_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person1_product_8_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person1_product_8_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 1. Kişi için Açıklama -->
+                            <div class="space-y-4 mt-4">
+                                <h3 class="text-lg font-medium text-black-purple-700">1. Kişi Açıklaması</h3>
+                                <div>
+                                    <textarea name="description1" id="description1" rows="4"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="1. kişi için ek açıklamalarınızı buraya yazabilirsiniz..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- İşbirliği Yapılacak Kişi Bilgileri Bölümü - 2. Kişi -->
+                    <div class="space-y-4 border border-black-purple-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center cursor-pointer"
+                            onclick="toggleBlock('person2Block')">
+                            <h2 class="text-xl font-medium text-black-purple-700 flex items-center gap-2">
+                                <span class="material-icons-outlined">person</span>
+                                2. İşbirliği Yapılacak Kişi Bilgileri
+                            </h2>
+                            <span class="material-icons-outlined transform transition-transform duration-200"
+                                id="person2Arrow">expand_more</span>
+                        </div>
+                        <div id="person2Block" class="space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Ad</label>
+                                    <input type="text" name="firstName2" id="firstName2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Soyad</label>
+                                    <input type="text" name="lastName2" id="lastName2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">E-mail</label>
+                                    <input type="email" name="email2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="ornek@mail.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Telefon</label>
+                                    <input type="tel" name="phone2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="0555 123 4567">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-black-purple-600 mb-1">Adres</label>
+                                    <textarea name="address2" id="address2" rows="2"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 2. Kişi için Ürünler Listesi -->
+                            <div class="space-y-4 mt-4">
+                                <h3 class="text-lg font-medium text-black-purple-700">2. Kişi Ürünleri</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-black-purple-50">
+                                                <th
+                                                    class="py-2 px-4 text-left text-sm font-medium text-black-purple-700 border-b border-black-purple-200">
+                                                    Ürün Adı</th>
+                                                <th
+                                                    class="py-2 px-4 text-center text-sm font-medium text-black-purple-700 border-b border-black-purple-200 w-32">
+                                                    Adet</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Collagen Classic</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_1_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_1_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_1_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Purple Collagen</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_2_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_2_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_2_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">5x Çoklu Magnezyum</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_3_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_3_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_3_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Bromelain</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_4_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_4_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_4_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Cranberry</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_5_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_5_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_5_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Multivitamin</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_6_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_6_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_6_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Mind Focus</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_7_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_7_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_7_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b border-black-purple-100">
+                                                <td class="py-3 px-4">Postbiyotik</td>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center justify-center">
+                                                        <button type="button"
+                                                            class="quantity-btn minus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-l-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_8_quantity">
+                                                            <span class="material-icons-outlined text-sm">remove</span>
+                                                        </button>
+                                                        <input type="number" name="person2_product_8_quantity" min="0"
+                                                            value="0"
+                                                            class="w-12 h-8 text-center border-y border-black-purple-200 focus:outline-none no-spinners">
+                                                        <button type="button"
+                                                            class="quantity-btn plus-btn bg-black-purple-100 hover:bg-black-purple-200 text-black-purple-700 w-8 h-8 rounded-r-md flex items-center justify-center focus:outline-none"
+                                                            data-input="person2_product_8_quantity">
+                                                            <span class="material-icons-outlined text-sm">add</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 2. Kişi için Açıklama -->
+                            <div class="space-y-4 mt-4">
+                                <h3 class="text-lg font-medium text-black-purple-700">2. Kişi Açıklaması</h3>
+                                <div>
+                                    <textarea name="description2" id="description2" rows="4"
+                                        class="w-full px-3 py-2 border border-black-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black-purple-500"
+                                        placeholder="2. kişi için ek açıklamalarınızı buraya yazabilirsiniz..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Export Options -->
+            <div class="w-full md:w-1/2 flex flex-col gap-4">
+                <!-- Export Panel -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex flex-wrap gap-2">
+                        <button id="printBtn" type="button"
+                            class="bg-black-purple-600 hover:bg-black-purple-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2">
+                            <span class="material-icons-outlined">print</span> Yazdır
+                        </button>
+                        <span class="text-sm text-gray-600"
+                            style="justify-content: center; display: flex; align-items: center;">Yazdırma Ekranında: Daha Fazla Ayar >
+                            Ölçek: 66 olarak seçin.</span>
+                    </div>
+                </div>
+
+                <!-- Summary Panel -->
+                <div id="summaryPanel" class="bg-white p-6 rounded-lg shadow-md">
+                    <!-- Content will be dynamically populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code for initializing Flatpickr date picker and quantity buttons
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date();
+
+            // Initialize Flatpickr date picker with Turkish localization
+            flatpickr(".flatpickr-date", {
+                dateFormat: "d.m.Y",
+                locale: "tr",
+                defaultDate: today,
+                onChange: function (selectedDates, dateStr) {
+                    // When date changes, update the summary panel
+                    updateSummaryPanel();
+                }
+            });
+
+            // Set today's date in the date field
+            const formattedDate = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+            document.getElementById('repDate').value = formattedDate;
+
+            // Store date in localStorage
+            localStorage.setItem('repDate', formattedDate);
+
+            // Update repDate on change
+            document.getElementById('repDate').addEventListener('change', function () {
+                localStorage.setItem('repDate', this.value);
+                updateSummaryPanel(); // Update summary when date changes
+            });
+
+            // Firma temsilcisi bilgilerini LocalStorage'dan yükle
+            const repFirstName = localStorage.getItem('repFirstName');
+            const repLastName = localStorage.getItem('repLastName');
+            const repDepartment = localStorage.getItem('repDepartment');
+            const repTitle = localStorage.getItem('repTitle');
+            const repDate = localStorage.getItem('repDate');
+
+            if (repFirstName) document.getElementById('repFirstName').value = repFirstName;
+            if (repLastName) document.getElementById('repLastName').value = repLastName;
+            if (repDepartment) document.getElementById('repDepartment').value = repDepartment;
+            if (repTitle) document.getElementById('repTitle').value = repTitle;
+            if (repDate) document.getElementById('repDate').value = repDate;
+
+            // Firma temsilcisi bilgilerini değiştiğinde kaydet
+            const repInputs = document.querySelectorAll('#repFirstName, #repLastName, #repDepartment, #repTitle, #repDate');
+            repInputs.forEach(input => {
+                input.addEventListener('change', function () {
+                    localStorage.setItem(this.id, this.value);
+                    updateSummaryPanel(); // Update summary when inputs change
+                });
+            });
+
+            // Set up quantity buttons
+            const quantityBtns = document.querySelectorAll('.quantity-btn');
+            quantityBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const inputName = this.getAttribute('data-input');
+                    const input = document.querySelector(`input[name="${inputName}"]`);
+                    let value = parseInt(input.value) || 0;
+
+                    if (this.classList.contains('plus-btn')) {
+                        value++;
+                    } else if (this.classList.contains('minus-btn')) {
+                        value = Math.max(0, value - 1);
+                    }
+
+                    input.value = value;
+
+                    // Update summary immediately after changing the quantity
+                    updateSummaryPanel();
+                });
+            });
+
+            // Convert all number inputs to use the no-spinners class
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.classList.add('no-spinners');
+            });
+
+            // Form değişikliklerini dinleyelim ve özet panelini güncelleyelim
+            const form = document.getElementById('productRequestForm');
+            form.addEventListener('input', updateSummaryPanel);
+            updateSummaryPanel(); // İlk yükleme için özeti oluştur
+
+            // Yazdırma ve dışa aktarma butonlarını ayarla
+            document.getElementById('printBtn').addEventListener('click', printFormattedForm);
+        });
+
+        // Blokları açıp kapatma fonksiyonu
+        function toggleBlock(blockId) {
+            const block = document.getElementById(blockId);
+            const arrow = document.getElementById(blockId.replace('Block', 'Arrow'));
+
+            if (block.style.display === 'none') {
+                block.style.display = 'block';
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                block.style.display = 'none';
+                arrow.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // Özet panelini güncelleme fonksiyonu
+        function updateSummaryPanel() {
+            const form = document.getElementById('productRequestForm');
+            const formData = new FormData(form);
+
+            // 1. Kişi için ürün sayılarını hesapla
+            let person1ProductCount = 0;
+            let person1ProductItems = [];
+
+            for (let i = 1; i <= 8; i++) {
+                const quantity = parseInt(formData.get(`person1_product_${i}_quantity`) || 0);
+                if (quantity > 0) {
+                    person1ProductCount += quantity;
+
+                    let productName = '';
+                    switch (i) {
+                        case 1: productName = 'Collagen Classic'; break;
+                        case 2: productName = 'Purple Collagen'; break;
+                        case 3: productName = '5x Çoklu Magnezyum'; break;
+                        case 4: productName = 'Bromelain'; break;
+                        case 5: productName = 'Cranberry'; break;
+                        case 6: productName = 'Multivitamin'; break;
+                        case 7: productName = 'Mind Focus'; break;
+                        case 8: productName = 'Postbiyotik'; break;
+                    }
+
+                    person1ProductItems.push(`${productName} (${quantity} adet)`);
+                }
+            }
+
+            // 2. Kişi için ürün sayılarını hesapla
+            let person2ProductCount = 0;
+            let person2ProductItems = [];
+
+            for (let i = 1; i <= 8; i++) {
+                const quantity = parseInt(formData.get(`person2_product_${i}_quantity`) || 0);
+                if (quantity > 0) {
+                    person2ProductCount += quantity;
+
+                    let productName = '';
+                    switch (i) {
+                        case 1: productName = 'Collagen Classic'; break;
+                        case 2: productName = 'Purple Collagen'; break;
+                        case 3: productName = '5x Çoklu Magnezyum'; break;
+                        case 4: productName = 'Bromelain'; break;
+                        case 5: productName = 'Cranberry'; break;
+                        case 6: productName = 'Multivitamin'; break;
+                        case 7: productName = 'Mind Focus'; break;
+                        case 8: productName = 'Postbiyotik'; break;
+                    }
+
+                    person2ProductItems.push(`${productName} (${quantity} adet)`);
+                }
+            }
+
+            // Tarih formatla
+            const today = new Date();
+            const formattedDate = formData.get('repDate') || `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+
+            // Özet HTML'i oluştur
+            const summaryHTML = `
+                <h2 class="text-xl font-semibold mb-4">Form Özeti</h2>
+                <div class="space-y-4">
+                    <div class="summary-section summary-section-representative">
+                        <h3 class="font-medium text-black-purple-700">Firma Temsilcisi</h3>
+                        <p>${formData.get('repFirstName') || ''} ${formData.get('repLastName') || ''}</p>
+                        <p>${formData.get('repTitle') || ''} - ${formData.get('repDepartment') || ''}</p>
+                        <br>
+                        <h3 class="font-medium text-black-purple-700">Tarih</h3>
+                        <p>${formattedDate}</p>
+                    </div>
+                    <div class="summary-section summary-section-person1">
+                        <h3 class="font-medium text-black-purple-700">1. İşbirliği Yapılacak Kişi</h3>
+                        <p>${formData.get('firstName1') || ''} ${formData.get('lastName1') || ''}</p>
+                        <p>${formData.get('phone1') || ''}</p>
+                        <p>${formData.get('address1') || ''}</p>
+                        <div class="mt-2">
+                            <h4 class="font-medium text-black-purple-600">Ürünler (${person1ProductCount} adet)</h4>
+                            <ul class="list-disc pl-5">
+                                ${person1ProductItems.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="mt-2">
+                            <h4 class="font-medium text-black-purple-600">Açıklama</h4>
+                            <p class="whitespace-pre-wrap">${formData.get('description1') || ''}</p>
+                        </div>
+                    </div>
+                    <div class="summary-section summary-section-person2">
+                        <h3 class="font-medium text-black-purple-700">2. İşbirliği Yapılacak Kişi</h3>
+                        <p>${formData.get('firstName2') || ''} ${formData.get('lastName2') || ''}</p>
+                        <p>${formData.get('phone2') || ''}</p>
+                        <p>${formData.get('address2') || ''}</p>
+                        <div class="mt-2">
+                            <h4 class="font-medium text-black-purple-600">Ürünler (${person2ProductCount} adet)</h4>
+                        <ul class="list-disc pl-5">
+                                ${person2ProductItems.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                        </div>
+                        <div class="mt-2">
+                            <h4 class="font-medium text-black-purple-600">Açıklama</h4>
+                            <p class="whitespace-pre-wrap">${formData.get('description2') || ''}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('summaryPanel').innerHTML = summaryHTML;
+        }
+
+        // Yazdırma işlevi
+        function printFormattedForm() {
+            const form = document.getElementById('productRequestForm');
+            const formData = new FormData(form);
+
+            // Get the print.html content using fetch
+            fetch('print.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Create a new window
+                    let printWindow = window.open('', '_blank');
+
+                    // Replace placeholders with actual data
+                    let printHtml = html;
+
+                    // Format date
+                    const today = new Date();
+                    const formattedDate = formData.get('repDate') || `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+
+                    // Replace personnel info
+                    printHtml = printHtml.replace('personel-adi-soyadi-buraya', `${formData.get('repFirstName') || ''} ${formData.get('repLastName') || ''}`);
+                    printHtml = printHtml.replace('personel-depoartmani-buraya', formData.get('repDepartment') || '');
+                    printHtml = printHtml.replace('personel-unvani-buraya', formData.get('repTitle') || '');
+                    printHtml = printHtml.replace('tarih-buraya', formattedDate);
+
+                    // Replace person 1 info
+                    printHtml = printHtml.replace('alıcı1.ad-buraya', formData.get('firstName1') || '');
+                    printHtml = printHtml.replace('alici1.soyad-buraya', formData.get('lastName1') || '');
+                    printHtml = printHtml.replace('alici1.telefon-buraya', formData.get('phone1') || '');
+
+                    // Replace person 1 address (multiline)
+                    const address1 = formData.get('address1') || '';
+                    printHtml = printHtml.replace('alici1.adres-buraya', autoWrapText(address1));
+
+                    // Replace person 1 description (multiline)
+                    const description1 = formData.get('description1') || '';
+                    printHtml = printHtml.replace('alici1-talep-buraya', autoWrapText(description1));
+
+                    // Replace person 2 info
+                    printHtml = printHtml.replace('alıcı2.ad-buraya', formData.get('firstName2') || '');
+                    printHtml = printHtml.replace('alıcı2.soyad-buraya', formData.get('lastName2') || '');
+                    printHtml = printHtml.replace('alıcı2.telefon-buraya', formData.get('phone2') || '');
+
+                    // Replace person 2 address (multiline)
+                    const address2 = formData.get('address2') || '';
+                    printHtml = printHtml.replace('alıcı2.adres-buraya', autoWrapText(address2));
+
+                    // Replace person 2 description (multiline)
+                    const description2 = formData.get('description2') || '';
+                    printHtml = printHtml.replace('alıcı2-talep-buraya', autoWrapText(description2));
+
+                    // Product quantities for person 1
+                    const productIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+                    const productNames = [
+                        'Collagen Classic', 'Purple Collagen', '5x Çoklu Magnezyum',
+                        'Bromelain', 'Cranberry', 'Multivitamin', 'Mind Focus',
+                        'Postbiyotik', 'Calm', 'Omega3', 'D3K2'
+                    ];
+
+                    // Person 1 products
+                    let adetReplacements = [];
+                    for (let i = 1; i <= 8; i++) {
+                        const quantity = formData.get(`person1_product_${i}_quantity`) || '0';
+                        adetReplacements.push(quantity);
+                    }
+
+                    // Add additional products that are in the print template but not in the form
+                    adetReplacements.push('0', '0', '0'); // For Calm, Omega3, D3K2
+
+                    // Replace all product quantities for person 1
+                    let adetIndex = 0;
+                    printHtml = printHtml.replace(/adet-here/g, function (match) {
+                        // Check if we're in person 1 section (first 11 occurrences)
+                        if (adetIndex < 11) {
+                            return adetReplacements[adetIndex++];
+                        }
+                        // For person 2 section
+                        return match;
+                    });
+
+                    // Person 2 products
+                    adetReplacements = [];
+                    for (let i = 1; i <= 8; i++) {
+                        const quantity = formData.get(`person2_product_${i}_quantity`) || '0';
+                        adetReplacements.push(quantity);
+                    }
+
+                    // Add additional products that are in the print template but not in the form
+                    adetReplacements.push('0', '0', '0'); // For Calm, Omega3, D3K2
+
+                    // Replace remaining product quantities for person 2
+                    printHtml = printHtml.replace(/adet-here/g, function (match) {
+                        if (adetReplacements.length > 0) {
+                            return adetReplacements.shift();
+                        }
+                        return match;
+                    });
+
+                    // Write to the new window
+                    printWindow.document.write(printHtml);
+
+                    // Wait for content to load
+                    printWindow.document.addEventListener('DOMContentLoaded', function () {
+                        // Print and close the window
+                        printWindow.print();
+                        // Don't close immediately to allow print dialog to appear
+                    });
+
+                    printWindow.document.close();
+                })
+                .catch(error => {
+                    console.error('Error loading print template:', error);
+                    alert('Yazdırma şablonu yüklenirken bir hata oluştu.');
+                });
+        }
+
+        // Otomatik metin sarma fonksiyonu
+        function autoWrapText(text) {
+            if (!text) return '';
+
+            // Eğer metin zaten satır sonları içeriyorsa, onları <br> ile değiştir
+            if (text.includes('\n')) {
+                return text.replace(/\n/g, '<br>');
+            }
+
+            // Uzun tek satırlık metinleri otomatik olarak sar
+            const maxCharsPerLine = 50; // Bir satırda maksimum karakter sayısı
+            let result = '';
+            let currentLineLength = 0;
+
+            // Metni kelime kelime işle
+            const words = text.split(' ');
+
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+
+                // Eğer bu kelimeyi eklemek satırı çok uzun yaparsa, yeni satıra geç
+                if (currentLineLength + word.length + 1 > maxCharsPerLine && currentLineLength > 0) {
+                    result += '<br>';
+                    currentLineLength = 0;
+                }
+
+                // Kelimeyi ekle
+                if (currentLineLength > 0) {
+                    result += ' ';
+                    currentLineLength += 1;
+                }
+
+                result += word;
+                currentLineLength += word.length;
+            }
+
+            return result;
+        }
+    </script>
+</body>
+
+</html>
