@@ -98,7 +98,7 @@
             }
         }
 
-        .material-icons-outlined{
+        .material-icons-outlined {
             user-select: none;
         }
     </style>
@@ -135,6 +135,10 @@
                 display: none !important;
             }
         }
+
+        .main-container {
+            min-height: 100dvh;
+        }
     </style>
 </head>
 
@@ -146,12 +150,13 @@
                 <a href="https://uruntalep.kiperincloud.com/" target="_blank">
                     <img src="assets/logo.png" alt="Kiperin Logo" class="h-14 mr-4">
                 </a>
-                <h1 class="text-lg md:text-xl font-semibold text-black-purple-700 text-right">Online Ürün Talep Formu</h1>
+                <h1 class="text-lg md:text-xl font-semibold text-black-purple-700 text-right">Online Ürün Talep Formu
+                </h1>
             </div>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 main-container">
         <div class="flex flex-col md:flex-row gap-8">
             <!-- Form Section -->
             <div class="w-full md:w-1/2">
@@ -793,7 +798,8 @@
                             <span class="material-icons-outlined">print</span> Yazdır
                         </button>
                         <span class="text-sm text-gray-600"
-                            style="justify-content: center; display: flex; align-items: center;">Yazdırma Ekranında: Daha Fazla Ayar >
+                            style="justify-content: center; display: flex; align-items: center;">Yazdırma Ekranında:
+                            Daha Fazla Ayar >
                             Ölçek kısmını düzenleyin.</span>
                     </div>
                 </div>
@@ -1046,26 +1052,30 @@
                     printHtml = printHtml.replace('personel-unvani-buraya', formData.get('repTitle') || '');
                     printHtml = printHtml.replace('tarih-buraya', formattedDate);
                     
+                    // Fill the DÜZENLEYEN section with the personnel name
+                    const personnelName = `${formData.get('repFirstName') || ''} ${formData.get('repLastName') || ''}`;
+                    printHtml = printHtml.replace(/<td class="s10" colspan="4" id="personel-adi-buraya"><\/td>/g, `<td class="s10" colspan="4" id="personel-adi-buraya">${personnelName}</td>`);
+
                     // Calculate total quantities for each person
                     let person1Total = 0;
                     let person2Total = 0;
-                    
+
                     // Add up person 1 product quantities
                     for (let i = 1; i <= 11; i++) {
                         var person1_product_quantity = parseInt(formData.get(`person1_product_${i}_quantity`) || 0);
                         person1Total += person1_product_quantity;
                     }
-                    
+
                     // Add up person 2 product quantities
                     for (let i = 1; i <= 11; i++) {
                         var person2_product_quantity = parseInt(formData.get(`person2_product_${i}_quantity`) || 0);
                         person2Total += person2_product_quantity;
                     }
-                    
+
                     // Insert individual person totals into the document using their IDs
                     printHtml = printHtml.replace(/<td class="s6" id="person1-quantity"><\/td>/g, `<td class="s6" id="person1-quantity">${person1Total}</td>`);
                     printHtml = printHtml.replace(/<td class="s6" id="person2-quantity"><\/td>/g, `<td class="s6" id="person2-quantity">${person2Total}</td>`);
-                    
+
                     // Replace overall total
                     printHtml = printHtml.replace('toplam-buraya', (person1Total + person2Total).toString());
 
@@ -1202,7 +1212,12 @@
                     <span class="text-black-purple-700 font-medium">#alwaysquality</span>
                 </div>
                 <div class="footer-right flex items-center">
-                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M112 34v460h30V34zm48 45.77v23.13c7.6 6 15.3 11.7 23 17.2V311h18V132.5a548.9 548.9 0 0 0 46.1 27.5h-.1v151h18V169.1c15.2 7.4 30.5 14 46 19.6V311h18V194.9c15.2 4.9 30.6 8.9 46 12.1v104h18V210.3c15.3 2.4 30.6 4.1 46 4.8V311h18v-95.4c12.3.1 24.7-.5 37-1.5v-17.4c-114.8 10.7-229.1-30.4-334-116.93zm-66 3.87C73.99 127 47.66 165.3 18 197.7v26.2C30.91 211 43.32 197 55 182v129h18V157.3c7.4-10.9 14.42-22.2 21-34zM18 329v30h76v-30zm142 0v30h334v-30z"></path></svg>
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em"
+                        width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M112 34v460h30V34zm48 45.77v23.13c7.6 6 15.3 11.7 23 17.2V311h18V132.5a548.9 548.9 0 0 0 46.1 27.5h-.1v151h18V169.1c15.2 7.4 30.5 14 46 19.6V311h18V194.9c15.2 4.9 30.6 8.9 46 12.1v104h18V210.3c15.3 2.4 30.6 4.1 46 4.8V311h18v-95.4c12.3.1 24.7-.5 37-1.5v-17.4c-114.8 10.7-229.1-30.4-334-116.93zm-66 3.87C73.99 127 47.66 165.3 18 197.7v26.2C30.91 211 43.32 197 55 182v129h18V157.3c7.4-10.9 14.42-22.2 21-34zM18 329v30h76v-30zm142 0v30h334v-30z">
+                        </path>
+                    </svg>
                     <span class="ml-2">From Istanbul <span style="user-select: none;">❤️</span></span>
                 </div>
             </div>
